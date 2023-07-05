@@ -73,6 +73,9 @@ export function start(
     const app = express();
     const server = http.createServer(app);
 
+    var foo = 12;
+    foo;
+
     /**
      * Builds a timeout middleware to shut down the server
      * in case the process becomes orphan.
