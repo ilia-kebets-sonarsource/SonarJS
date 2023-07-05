@@ -77,6 +77,20 @@ ruleTester.run('should report usages of deprecated', rule, {
   invalid: [
     {
       code: `
+        /**
+         * @deprecated
+         * whatever
+         *
+         */
+        function foo() {
+          return 'hello'
+        }
+        foo()
+      `,
+      errors: 0
+    },
+    {
+      code: `
   interface X {
     /** @deprecated use bar instead*/
     foo(pp: string): number;
@@ -110,41 +124,41 @@ ruleTester.run('should report usages of deprecated', rule, {
    * @deprecated since version 42
    */
   export class MyClass {
-      /** @deprecated */ 
+      /** @deprecated */
       deprecatedProperty: any;
       /** @deprecated with message */ oneMoreDeprecated: any;
       notDeprecated;
   }
-  
+
   let myObj = new MyClass(); // Noncompliant
   let fromDeprecatedProp = myObj.deprecatedProperty; // Noncompliant
   foo(myObj.oneMoreDeprecated); // Noncompliant
   foo(fromDeprecatedProp);
   foo(myObj.notDeprecated);
-  
+
   interface MyInterface extends MyClass {} // Noncompliant
   let myInterface: MyInterface;
   foo(myInterface.deprecatedProperty); // Noncompliant
-  foo(myInterface.notDeprecated); 
+  foo(myInterface.notDeprecated);
 
   (function ({deprecatedProperty, notDeprecated, oneMoreDeprecated: tmp}: MyInterface) {})  // Noncompliant x2
   (function ({foo: {deprecatedProperty, notDeprecated}}: {foo: MyInterface}) {}) // Noncompliant
 
   let {deprecatedProperty, notDeprecated, oneMoreDeprecated} = myObj; // Noncompliant x2
   ({deprecatedProperty, notDeprecated, oneMoreDeprecated} = myObj); // Noncompliant x2
-  
+
   ({deprecatedProperty: notDeprecated, notDeprecated: oneMoreDeprecated, oneMoreDeprecated: deprecatedProperty} = myObj); // Noncompliant x2
   let obj = { deprecatedProperty: 42, notDeprecated };
-  
+
   /** @deprecated */
-  let deprecatedVar; 
+  let deprecatedVar;
   ({deprecatedProperty: deprecatedVar} = myObj);  // Noncompliant x2 `),
 
     invalid(`
   /** @deprecated */
   const const1 = 1,
         const2 = 2;
-  
+
   foo(const1 + const2); // Noncompliant
   export default const1;// Noncompliant
     `),
@@ -154,7 +168,7 @@ ruleTester.run('should report usages of deprecated', rule, {
   /** @deprecated */
   function fn(bar: any): any;
   function fn() { }
-  
+
   fn<number>();
   fn(1); // Noncompliant
   foo(fn); // Noncompliant
@@ -167,7 +181,7 @@ ruleTester.run('should report usages of deprecated', rule, {
     static method(param): void;
     static method(param?): void {}
   }
-  
+
   new MyClass();
   MyClass.method(); // Noncompliant
   MyClass.method(1);
@@ -198,7 +212,7 @@ ruleTester.run('should report usages of deprecated', rule, {
     (): void;
   }
   deprecatedCallSignature(); // Noncompliant
-  
+
   /** @deprecated */
   let deprecatedCallSignature2: () => void;
   deprecatedCallSignature2(); // Noncompliant`),
@@ -217,7 +231,7 @@ ruleTester.run('should report usages of deprecated', rule, {
 
   import * as deprecationsExport from '${fixtures}/deprecationsExport';
   foo(deprecationsExport); // Noncompliant
-  
+
   import {DeprecatedClass, ClassWithDeprecatedConstructor, ClassWithOneDeprecatedConstructor} from "${fixtures}/deprecations"
   const myObj: DeprecatedClass = new DeprecatedClass();  // Noncompliant x2
   const myObj1: DeprecatedConstructorClass = new ClassWithDeprecatedConstructor(); // Noncompliant

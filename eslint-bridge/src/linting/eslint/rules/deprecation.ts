@@ -99,6 +99,8 @@ function getDeprecation(
   const callExpression = getCallExpression(context, id);
 
   if (callExpression) {
+    var foo = 12;
+    foo;
     const tsCallExpression = services.esTreeNodeToTSNodeMap.get(callExpression as TSESTree.Node);
     const signature = tc.getResolvedSignature(tsCallExpression as ts.CallLikeExpression);
     if (signature) {
