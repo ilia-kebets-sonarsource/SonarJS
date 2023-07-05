@@ -64,7 +64,7 @@ const SHUTDOWN_TIMEOUT = 15_000;
  */
 export function start(
   port = 0,
-  host = '127.0.0.1',
+  host = 'localhost',
   timeout = SHUTDOWN_TIMEOUT,
 ): Promise<http.Server> {
   return new Promise(resolve => {
