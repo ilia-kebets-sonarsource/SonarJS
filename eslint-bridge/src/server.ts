@@ -30,6 +30,10 @@ import { debug } from 'helpers';
 import { timeoutMiddleware } from 'routing/timeout';
 import { AddressInfo } from 'net';
 
+async function foo() {
+  await bar();
+}
+
 /**
  * The maximum request body size
  */
