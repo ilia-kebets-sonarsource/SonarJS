@@ -1,6 +1,6 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2012-2023 SonarSource SA
+ * Copyright (C) 2012-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -27,5 +27,4 @@ public class EslintRulesBundle implements RulesBundle {
   public String bundlePath() {
     return "/custom-eslint-based-rules-1.0.0.tgz";
   }
-
 }

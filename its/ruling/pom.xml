@@ -5,7 +5,7 @@
   <parent>
     <groupId>org.sonarsource.javascript</groupId>
     <artifactId>javascript-its</artifactId>
-    <version>10.1.0-SNAPSHOT</version>
+    <version>10.13.0-SNAPSHOT</version>
   </parent>
 
   <artifactId>javascript-it-ruling</artifactId>
@@ -28,8 +28,7 @@
     </dependency>
     <dependency>
       <groupId>org.sonarsource.orchestrator</groupId>
-      <artifactId>sonar-orchestrator</artifactId>
-      <version>${sonar-orchestrator.version}</version>
+      <artifactId>sonar-orchestrator-junit5</artifactId>
     </dependency>
     <dependency>
       <groupId>org.sonarsource.sonarqube</groupId>
@@ -86,10 +85,11 @@
                       <groupId>${project.groupId}</groupId>
                       <artifactId>sonar-javascript-plugin</artifactId>
                       <type>sonar-plugin</type>
+                      <classifier>multi</classifier>
                       <overWrite>true</overWrite>
                     </artifactItem>
                   </artifactItems>
-                  <outputDirectory>../../sonar-javascript-plugin/target</outputDirectory>
+                  <outputDirectory>../../sonar-plugin/sonar-javascript-plugin/target</outputDirectory>
                   <overWriteReleases>true</overWriteReleases>
                   <overWriteSnapshots>true</overWriteSnapshots>
                 </configuration>

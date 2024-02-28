@@ -1,0 +1,23 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "strictNullChecks": false,
+    "noImplicitAny": false,
+    "composite": true,
+    "resolveJsonModule": true
+  },
+  "references": [
+    {
+      "path": "./tsconfig.app.json"
+    }
+  ],
+  "include": [
+    "*/tests",
+    "*/src/rules/tools",
+    "ruling/**/*",
+    "*/src/rules/*/*.test.ts",
+    "**/ruling/tests/data/*.json"
+  ],
+  "exclude": ["*/tests/**/fixtures", "*/src/rules/*/*.fixture.*", "*/src/rules/*/fixtures"]
+}

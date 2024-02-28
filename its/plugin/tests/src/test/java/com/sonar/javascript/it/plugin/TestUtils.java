@@ -1,6 +1,6 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2012-2023 SonarSource SA
+ * Copyright (C) 2012-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,20 +19,13 @@
  */
 package com.sonar.javascript.it.plugin;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.UncheckedIOException;
-import java.net.URI;
 import java.net.URISyntaxException;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
-import org.sonarsource.sonarlint.core.analysis.api.ClientInputFile;
-
 
 public class TestUtils {
 
@@ -46,11 +39,12 @@ public class TestUtils {
       throw new IllegalStateException("failed to obtain HOME", e);
     }
 
-    HOME = testResources // home/tests/src/test/resources
-      .getParentFile() // home/tests/src/test
-      .getParentFile() // home/tests/src
-      .getParentFile() // home/tests
-      .getParentFile(); // home
+    HOME =
+      testResources // home/tests/src/test/resources
+        .getParentFile() // home/tests/src/test
+        .getParentFile() // home/tests/src
+        .getParentFile() // home/tests
+        .getParentFile(); // home
   }
 
   public static File homeDir() {
@@ -79,68 +73,13 @@ public class TestUtils {
 
   public static void copyFile(Path sourceFile, Path targetDirectory) {
     try {
-      Files.copy(sourceFile, targetDirectory.resolve(sourceFile.getFileName()), StandardCopyOption.REPLACE_EXISTING);
+      Files.copy(
+        sourceFile,
+        targetDirectory.resolve(sourceFile.getFileName()),
+        StandardCopyOption.REPLACE_EXISTING
+      );
     } catch (IOException e) {
       throw new UncheckedIOException(e);
     }
   }
-
-  static ClientInputFile sonarLintInputFile(Path path, String content) throws IOException {
-    return createInputFile(path, content);
-  }
-
-  private static ClientInputFile createInputFile(Path file, String content) {
-    return new TestClientInputFile(file, content);
-  }
-
-  static class TestClientInputFile implements ClientInputFile {
-    private final String content;
-    private final Path path;
-
-    TestClientInputFile(Path path, String content) {
-      this.content = content;
-      this.path = path;
-    }
-
-    @Override
-    public String getPath() {
-      return path.toString();
-    }
-
-    @Override
-    public boolean isTest() {
-      return false;
-    }
-
-    @Override
-    public Charset getCharset() {
-      return StandardCharsets.UTF_8;
-    }
-
-    @Override
-    public <G> G getClientObject() {
-      return null;
-    }
-
-    @Override
-    public String contents() {
-      return content;
-    }
-
-    @Override
-    public String relativePath() {
-      return path.toString();
-    }
-
-    @Override
-    public URI uri() {
-      return path.toUri();
-    }
-
-    @Override
-    public InputStream inputStream() {
-      return new ByteArrayInputStream(content.getBytes(getCharset()));
-    }
-  }
 }
-

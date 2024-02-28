@@ -1,0 +1,24 @@
+{
+  "title": "Loops should not be infinite",
+  "type": "BUG",
+  "code": {
+    "impacts": {
+      "RELIABILITY": "HIGH"
+    },
+    "attribute": "LOGICAL"
+  },
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "15min"
+  },
+  "tags": [],
+  "defaultSeverity": "Blocker",
+  "ruleSpecification": "RSPEC-2189",
+  "sqKey": "S2189",
+  "scope": "Main",
+  "quickfix": "unknown",
+  "compatibleLanguages": [
+    "JAVASCRIPT"
+  ]
+}

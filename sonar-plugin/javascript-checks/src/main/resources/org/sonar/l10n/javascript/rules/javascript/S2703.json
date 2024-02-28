@@ -1,0 +1,26 @@
+{
+  "title": "Variables should be declared explicitly",
+  "type": "CODE_SMELL",
+  "code": {
+    "impacts": {
+      "MAINTAINABILITY": "HIGH"
+    },
+    "attribute": "CLEAR"
+  },
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "2min"
+  },
+  "tags": [
+    "pitfall"
+  ],
+  "defaultSeverity": "Blocker",
+  "ruleSpecification": "RSPEC-2703",
+  "sqKey": "S2703",
+  "scope": "Main",
+  "quickfix": "unknown",
+  "compatibleLanguages": [
+    "JAVASCRIPT"
+  ]
+}

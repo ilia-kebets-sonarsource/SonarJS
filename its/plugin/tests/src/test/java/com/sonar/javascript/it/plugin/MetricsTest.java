@@ -1,6 +1,6 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2012-2023 SonarSource SA
+ * Copyright (C) 2012-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,16 +19,16 @@
  */
 package com.sonar.javascript.it.plugin;
 
+import static com.sonar.javascript.it.plugin.OrchestratorStarter.getMeasure;
+import static com.sonar.javascript.it.plugin.OrchestratorStarter.getMeasureAsDouble;
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.sonarqube.ws.Measures.Measure;
-
-import static com.sonar.javascript.it.plugin.OrchestratorStarter.getMeasure;
-import static com.sonar.javascript.it.plugin.OrchestratorStarter.getMeasureAsDouble;
-import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(OrchestratorStarter.class)
 class MetricsTest {
@@ -39,7 +39,8 @@ class MetricsTest {
 
   @BeforeAll
   public static void prepare() {
-    SonarScanner build = OrchestratorStarter.createScanner()
+    SonarScanner build = OrchestratorStarter
+      .createScanner()
       .setProjectDir(TestUtils.projectDir("metrics"))
       .setProjectKey(PROJECT_KEY)
       .setProjectName(PROJECT_KEY)
@@ -152,5 +153,4 @@ class MetricsTest {
   private static String keyFor(String s) {
     return PROJECT_KEY + ":src/" + s;
   }
-
 }

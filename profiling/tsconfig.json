@@ -1,0 +1,24 @@
+{
+  "extends": "../packages/tsconfig.json",
+  "compilerOptions": {
+    "composite": false,
+    "noEmit": true,
+    "strictNullChecks": false,
+    "noImplicitAny": false,
+    "baseUrl": ".",
+    "paths": {
+      "@sonar/jsts": ["../packages/jsts/src"],
+      "@sonar/jsts/embedded": ["../packages/jsts/src/embedded"],
+      "@sonar/shared/*": ["../packages/shared/src/*"]
+    }
+  },
+  "references": [
+    {
+      "path": "../packages/tsconfig.json"
+    }
+  ],
+  "ts-node": {
+    // Do not forget to `npm i -D tsconfig-paths`
+    "require": ["tsconfig-paths/register"]
+  }
+}

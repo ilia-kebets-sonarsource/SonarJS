@@ -1,0 +1,26 @@
+{
+  "title": "\"in\" should not be used with primitive types",
+  "type": "BUG",
+  "code": {
+    "impacts": {
+      "RELIABILITY": "HIGH"
+    },
+    "attribute": "LOGICAL"
+  },
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "type-dependent"
+  ],
+  "defaultSeverity": "Critical",
+  "ruleSpecification": "RSPEC-3785",
+  "sqKey": "S3785",
+  "scope": "Main",
+  "quickfix": "unknown",
+  "compatibleLanguages": [
+    "JAVASCRIPT"
+  ]
+}

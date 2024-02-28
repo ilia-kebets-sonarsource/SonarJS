@@ -1,0 +1,27 @@
+{
+  "title": "Web SQL databases should not be used",
+  "type": "VULNERABILITY",
+  "code": {
+    "impacts": {
+      "SECURITY": "HIGH"
+    },
+    "attribute": "CONVENTIONAL"
+  },
+  "status": "deprecated",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "2h"
+  },
+  "tags": [
+    "type-dependent"
+  ],
+  "defaultSeverity": "Blocker",
+  "ruleSpecification": "RSPEC-2817",
+  "sqKey": "S2817",
+  "scope": "Main",
+  "quickfix": "unknown",
+  "compatibleLanguages": [
+    "JAVASCRIPT",
+    "TYPESCRIPT"
+  ]
+}

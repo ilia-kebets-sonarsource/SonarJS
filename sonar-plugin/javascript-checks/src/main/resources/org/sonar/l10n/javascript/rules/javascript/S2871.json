@@ -1,0 +1,28 @@
+{
+  "title": "\"Array.prototype.sort()\" and \"Array.prototype.toSorted()\" should use a compare function",
+  "type": "BUG",
+  "code": {
+    "impacts": {
+      "RELIABILITY": "HIGH"
+    },
+    "attribute": "CLEAR"
+  },
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "10min"
+  },
+  "tags": [
+    "bad-practice",
+    "type-dependent"
+  ],
+  "defaultSeverity": "Critical",
+  "ruleSpecification": "RSPEC-2871",
+  "sqKey": "S2871",
+  "scope": "Main",
+  "quickfix": "covered",
+  "compatibleLanguages": [
+    "JAVASCRIPT",
+    "TYPESCRIPT"
+  ]
+}

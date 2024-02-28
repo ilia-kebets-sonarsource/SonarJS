@@ -1,6 +1,6 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2012-2023 SonarSource SA
+ * Copyright (C) 2012-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -21,11 +21,11 @@ package com.sonar.javascript.it.plugin;
 
 import com.sonar.orchestrator.build.SonarScanner;
 
-
 class CssTestsUtils {
 
   static SonarScanner createScanner(String projectKey) {
-    return OrchestratorStarter.getSonarScanner()
+    return OrchestratorStarter
+      .getSonarScanner()
       .setSourceEncoding("UTF-8")
       .setProjectDir(TestUtils.projectDir(projectKey))
       .setProjectKey(projectKey)
@@ -34,5 +34,4 @@ class CssTestsUtils {
       .setDebugLogs(true)
       .setSourceDirs("src");
   }
-
 }

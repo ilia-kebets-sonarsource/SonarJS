@@ -1,6 +1,6 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2012-2023 SonarSource SA
+ * Copyright (C) 2012-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -23,9 +23,13 @@ import org.sonar.api.Plugin;
 
 public class EslintCustomRulesPlugin implements Plugin {
 
-
   @Override
   public void define(Context context) {
-    context.addExtensions(EslintRulesBundle.class, CustomRulesDefinition.class, RuleRepository.class, TsRepository.class);
+    context.addExtensions(
+      EslintRulesBundle.class,
+      CustomRulesDefinition.class,
+      RuleRepository.class,
+      TsRepository.class
+    );
   }
 }

@@ -1,6 +1,6 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2012-2023 SonarSource SA
+ * Copyright (C) 2012-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,6 +19,11 @@
  */
 package com.sonar.javascript.it.plugin;
 
+import static com.sonar.javascript.it.plugin.OrchestratorStarter.getIssues;
+import static com.sonar.javascript.it.plugin.OrchestratorStarter.getSonarScanner;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
+
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.BuildResult;
 import com.sonar.orchestrator.build.SonarScanner;
@@ -27,14 +32,10 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.sonarqube.ws.Issues.Issue;
-
-import static com.sonar.javascript.it.plugin.OrchestratorStarter.getIssues;
-import static com.sonar.javascript.it.plugin.OrchestratorStarter.getSonarScanner;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.tuple;
 
 @ExtendWith(OrchestratorStarter.class)
 class TypeScriptAnalysisTest {
@@ -66,16 +67,21 @@ class TypeScriptAnalysisTest {
     assertThat(OrchestratorStarter.getMeasureAsInt(sampleFileKey, "statements")).isEqualTo(3);
     assertThat(OrchestratorStarter.getMeasureAsInt(sampleFileKey, "comment_lines")).isEqualTo(1);
     assertThat(OrchestratorStarter.getMeasureAsInt(sampleFileKey, "complexity")).isEqualTo(2);
-    assertThat(OrchestratorStarter.getMeasureAsInt(sampleFileKey, "cognitive_complexity")).isEqualTo(2);
+    assertThat(OrchestratorStarter.getMeasureAsInt(sampleFileKey, "cognitive_complexity"))
+      .isEqualTo(0);
 
-    assertThat(OrchestratorStarter.getMeasureAsDouble(projectKey, "duplicated_lines")).isEqualTo(111.0);
-    assertThat(OrchestratorStarter.getMeasureAsDouble(projectKey, "duplicated_blocks")).isEqualTo(2.0);
-    assertThat(OrchestratorStarter.getMeasureAsDouble(projectKey, "duplicated_files")).isEqualTo(1.0);
+    assertThat(OrchestratorStarter.getMeasureAsDouble(projectKey, "duplicated_lines"))
+      .isEqualTo(111.0);
+    assertThat(OrchestratorStarter.getMeasureAsDouble(projectKey, "duplicated_blocks"))
+      .isEqualTo(2.0);
+    assertThat(OrchestratorStarter.getMeasureAsDouble(projectKey, "duplicated_files"))
+      .isEqualTo(1.0);
 
     issuesList = getIssues(projectKey + ":nosonar.lint.ts");
     assertThat(issuesList).hasSize(1);
 
-    assertThat(result.getLogsLines(log -> log.contains("Found 1 tsconfig.json file(s)"))).hasSize(1);
+    assertThat(result.getLogsLines(log -> log.contains("Found 1 tsconfig.json file(s)")))
+      .hasSize(1);
   }
 
   @Test
@@ -91,7 +97,11 @@ class TypeScriptAnalysisTest {
     OrchestratorStarter.setProfile(projectKey, "eslint-based-rules-profile", "ts");
     BuildResult result = orchestrator.executeBuild(build);
 
-    List<Issue> issuesList = getIssues(projectKey);
+    var file = projectKey + ":fileUsedInCustomTsConfig.ts";
+    var issuesList = getIssues(projectKey)
+      .stream()
+      .filter(i -> file.equals(i.getComponent()))
+      .collect(Collectors.toList());
     assertThat(issuesList).hasSize(1);
     Issue issue = issuesList.get(0);
     assertThat(issue.getLine()).isEqualTo(2);
@@ -99,8 +109,16 @@ class TypeScriptAnalysisTest {
 
     // using `getCanonicalFile` as otherwise test is failing when executed on Windows (`C:\Windows\TEMP...` vs `C:\Windows\Temp`)
     Path tsconfig = PROJECT_DIR.getCanonicalFile().toPath().resolve("custom.tsconfig.json");
-    assertThat(result.getLogsLines(l -> l.contains("Resolving TSConfig files using 'custom.tsconfig.json' from property sonar.typescript.tsconfigPath"))).hasSize(1);
-    assertThat(result.getLogsLines(l -> l.contains("Found 1 TSConfig file(s): [" + tsconfig + "]"))).hasSize(1);
+    assertThat(
+      result.getLogsLines(l ->
+        l.contains(
+          "Resolving TSConfig files using 'custom.tsconfig.json' from property sonar.typescript.tsconfigPath"
+        )
+      )
+    )
+      .hasSize(1);
+    assertThat(result.getLogsLines(l -> l.contains("Found 1 TSConfig file(s): [" + tsconfig + "]")))
+      .hasSize(1);
   }
 
   @Test
@@ -119,16 +137,19 @@ class TypeScriptAnalysisTest {
     BuildResult result = orchestrator.executeBuild(build);
 
     List<Issue> issuesList = getIssues(projectKey);
-    assertThat(issuesList).extracting(Issue::getLine, Issue::getComponent).containsExactlyInAnyOrder(
-      tuple(2, "tsproject-customs:file.ts"),
-      tuple(2, "tsproject-customs:dir/file.ts")
-    );
+    assertThat(issuesList)
+      .extracting(Issue::getLine, Issue::getComponent)
+      .containsExactlyInAnyOrder(
+        tuple(2, "tsproject-customs:file.ts"),
+        tuple(2, "tsproject-customs:dir/file.ts")
+      );
 
     List<Path> tsconfigs = Arrays.asList(
       projectDir.getCanonicalFile().toPath().resolve(Paths.get("dir", "custom.tsconfig.json")),
       projectDir.getCanonicalFile().toPath().resolve("tsconfig.json")
     );
-    assertThat(result.getLogsLines(l -> l.contains("Found 2 TSConfig file(s): "+ tsconfigs))).hasSize(1);
+    assertThat(result.getLogsLines(l -> l.contains("Found 2 TSConfig file(s): " + tsconfigs)))
+      .hasSize(1);
   }
 
   @Test
@@ -147,9 +168,9 @@ class TypeScriptAnalysisTest {
     BuildResult result = orchestrator.executeBuild(build);
 
     List<Issue> issuesList = getIssues(projectKey);
-    // we don't support analysis without tsconfig when using ts.Program
-    assertThat(issuesList).isEmpty();
-    assertThat(result.getLogsLines(l -> l.contains("Using generated tsconfig.json file"))).isEmpty();
+    assertThat(issuesList).extracting(Issue::getRule).containsExactly("typescript:S4325");
+    assertThat(result.getLogsLines(l -> l.contains("Using generated tsconfig.json file")))
+      .hasSize(1);
   }
 
   /**
@@ -172,12 +193,15 @@ class TypeScriptAnalysisTest {
     BuildResult result = orchestrator.executeBuild(build);
 
     List<Issue> issuesList = getIssues(projectKey);
-    assertThat(issuesList).extracting(Issue::getLine, Issue::getRule, Issue::getComponent).containsExactlyInAnyOrder(
-      tuple(2, "typescript:S4325", "missing-tsconfig-vue:src/main.ts"),
-      tuple(6, "typescript:S3923", "missing-tsconfig-vue:src/file.vue")
-    );
+    assertThat(issuesList)
+      .extracting(Issue::getLine, Issue::getRule, Issue::getComponent)
+      .containsExactlyInAnyOrder(
+        tuple(2, "typescript:S4325", "missing-tsconfig-vue:src/main.ts"),
+        tuple(6, "typescript:S3923", "missing-tsconfig-vue:src/file.vue")
+      );
 
-    assertThat(result.getLogsLines(l -> l.contains("Using generated tsconfig.json file"))).hasSize(1);
+    assertThat(result.getLogsLines(l -> l.contains("Using generated tsconfig.json file")))
+      .hasSize(1);
   }
 
   @Test
@@ -196,12 +220,27 @@ class TypeScriptAnalysisTest {
     BuildResult result = orchestrator.executeBuild(build);
 
     List<Issue> issuesList = getIssues(projectKey);
-    assertThat(issuesList).extracting(Issue::getLine, Issue::getRule, Issue::getComponent).containsExactly(
-      tuple(2, "typescript:S3923", "tsproject-extended:dir/file.ts")
-    );
+    assertThat(issuesList)
+      .extracting(Issue::getLine, Issue::getRule, Issue::getComponent)
+      .containsExactlyInAnyOrder(
+        tuple(2, "typescript:S3923", "tsproject-extended:dir/file.ts"),
+        tuple(2, "typescript:S3923", "tsproject-extended:dir/file.excluded.ts")
+      );
 
-    assertThat(result.getLogsLines(l -> l.contains("Skipped 1 file(s) because they were not part of any tsconfig.json"))).hasSize(1);
-    assertThat(result.getLogsLines(l -> l.contains("File not part of any tsconfig.json: dir/file.excluded.ts"))).hasSize(1);
+    assertThat(
+      result.getLogsLines(l ->
+        l.contains(
+          "INFO: Found 1 file(s) not part of any tsconfig.json: they will be analyzed without type information"
+        )
+      )
+    )
+      .hasSize(1);
+    assertThat(
+      result.getLogsLines(l ->
+        l.contains("File not part of any tsconfig.json: dir/file.excluded.ts")
+      )
+    )
+      .hasSize(1);
   }
 
   @Test
@@ -219,12 +258,19 @@ class TypeScriptAnalysisTest {
     BuildResult result = orchestrator.executeBuild(build);
 
     List<Issue> issuesList = getIssues(projectKey);
-    assertThat(issuesList).extracting(Issue::getLine, Issue::getRule, Issue::getComponent).containsExactly(
-      tuple(4, "typescript:S3923", "solution-tsconfig:src/file.ts"),
-      tuple(4, "typescript:S3923", "solution-tsconfig:src/unlisted.ts")
-    );
+    assertThat(issuesList)
+      .extracting(Issue::getLine, Issue::getRule, Issue::getComponent)
+      .containsExactly(
+        tuple(4, "typescript:S3923", "solution-tsconfig:src/file.ts"),
+        tuple(4, "typescript:S3923", "solution-tsconfig:src/unlisted.ts")
+      );
 
-    assertThat(result.getLogsLines(l -> l.contains("Skipped") && l.contains("because they were not part of any tsconfig.json"))).isEmpty();
+    assertThat(
+      result.getLogsLines(l ->
+        l.contains("Skipped") && l.contains("because they were not part of any tsconfig.json")
+      )
+    )
+      .isEmpty();
   }
 
   @Test
@@ -244,11 +290,40 @@ class TypeScriptAnalysisTest {
     BuildResult result = orchestrator.executeBuild(build);
 
     List<Issue> issuesList = getIssues(projectKey);
-    assertThat(issuesList).extracting(Issue::getLine, Issue::getRule, Issue::getComponent).containsExactly(
-      tuple(4, "typescript:S3923", "solution-tsconfig-custom:src/file.ts"),
-      tuple(4, "typescript:S3923", "solution-tsconfig-custom:src/unlisted.ts")
-    );
+    assertThat(issuesList)
+      .extracting(Issue::getLine, Issue::getRule, Issue::getComponent)
+      .containsExactly(
+        tuple(4, "typescript:S3923", "solution-tsconfig-custom:src/file.ts"),
+        tuple(4, "typescript:S3923", "solution-tsconfig-custom:src/unlisted.ts")
+      );
 
-    assertThat(result.getLogsLines(l -> l.contains("Skipped") && l.contains("because they were not part of any tsconfig.json"))).isEmpty();
+    assertThat(
+      result.getLogsLines(l ->
+        l.contains("Skipped") && l.contains("because they were not part of any tsconfig.json")
+      )
+    )
+      .isEmpty();
+  }
+
+  @Test
+  void should_ignore_json_files_resolved_as_modules() {
+    String projectKey = "resolve-json-module";
+    File dir = TestUtils.projectDir(projectKey);
+
+    SonarScanner build = getSonarScanner()
+      .setProjectKey(projectKey)
+      .setSourceEncoding("UTF-8")
+      .setSourceDirs(".")
+      .setProjectDir(dir)
+      .setDebugLogs(true)
+      .setProperty("sonar.typescript.tsconfigPath", "tsconfig.json");
+
+    OrchestratorStarter.setProfile(projectKey, "resolve-json-module-profile", "ts");
+    orchestrator.executeBuild(build);
+
+    List<Issue> issuesList = getIssues(projectKey);
+    assertThat(issuesList)
+      .extracting(Issue::getLine, Issue::getRule, Issue::getComponent)
+      .containsExactly(tuple(1, "typescript:S1128", "resolve-json-module:src/foo.ts"));
   }
 }

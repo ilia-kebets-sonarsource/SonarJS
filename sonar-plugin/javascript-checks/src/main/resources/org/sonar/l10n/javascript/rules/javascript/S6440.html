@@ -1,0 +1,43 @@
+<h2>Why is this an issue?</h2>
+<p>React relies on the order in which Hooks are called to correctly preserve the state of Hooks between multiple <code>useState</code> and
+<code>useEffect</code> calls. This means React Hooks should be called in the same order each time a component renders and should not be called inside
+loops, conditions, or nested functions.</p>
+<p>Additionally, this rule ensures that the Hooks are called only from React function components or custom Hooks.</p>
+<pre data-diff-id="1" data-diff-type="noncompliant">
+function Profile() {
+  const [ordersCount, setOrdersCount] = useState(0);
+  if (ordersCount !== 0) {
+    useEffect(function() { // Noncompliant: Hook is called conditionally
+      localStorage.setItem('ordersData', ordersCount);
+    });
+  }
+
+  return &lt;div&gt;{ getName() }&lt;/div&gt;
+}
+
+function getName() {
+  const [name] = useState('John'); // Noncompliant: Hook is called from a JavaScript function, not a React component
+  return name;
+}
+</pre>
+<p>Instead, always use Hooks at the top of your React function, before any early returns.</p>
+<pre data-diff-id="1" data-diff-type="compliant">
+function Profile() {
+  const [ordersCount, setOrdersCount] = useState(0);
+  useEffect(function() {
+    if (ordersCount !== 0) {
+      localStorage.setItem('ordersData', ordersCount);
+    }
+  });
+
+  const [name] = useState('John');
+  return &lt;div&gt;{ name }&lt;/div&gt;
+}
+</pre>
+<h2>Resources</h2>
+<h3>Documentation</h3>
+<ul>
+  <li> React Documentation - <a href="https://react.dev/warnings/invalid-hook-call-warning#breaking-rules-of-hooks">Breaking Rules of Hooks</a> </li>
+  <li> React Documentation - <a href="https://legacy.reactjs.org/docs/hooks-rules.html">Rules of Hooks</a> </li>
+</ul>
+

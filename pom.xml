@@ -6,19 +6,20 @@
   <parent>
     <groupId>org.sonarsource.parent</groupId>
     <artifactId>parent</artifactId>
-    <version>65.0.218</version>
+    <version>71.0.0.1292</version>
   </parent>
 
   <groupId>org.sonarsource.javascript</groupId>
   <artifactId>javascript</artifactId>
-  <version>10.1.0-SNAPSHOT</version>
+  <version>10.13.0-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <name>SonarJS</name>
   <description>SonarQube JavaScript/TypeScript/CSS Analyzer</description>
   <inceptionYear>2011</inceptionYear>
   <organization>
-    <name>SonarSource and Eriks Nukis</name>
+    <name>SonarSource</name>
+    <url>https://www.sonarsource.com</url>
   </organization>
   <licenses>
     <license>
@@ -27,11 +28,40 @@
       <distribution>repo</distribution>
     </license>
   </licenses>
+  <developers>
+    <developer>
+      <id>vilchik-elena</id>
+      <name>Elena Vilchik</name>
+      <organization>SonarSource</organization>
+    </developer>
+    <developer>
+      <id>saberduck</id>
+      <name>Tibor Blénessy</name>
+      <organization>SonarSource</organization>
+    </developer>
+    <developer>
+      <id>yassin-kammoun-sonarsource</id>
+      <name>Yassin Kammoun</name>
+      <organization>SonarSource</organization>
+    </developer>
+    <developer>
+      <id>ilia-kebets-sonarsource</id>
+      <name>Ilia Kebets</name>
+      <organization>SonarSource</organization>
+    </developer>
+    <developer>
+      <id>vdiez</id>
+      <name>Victor Diez</name>
+      <organization>SonarSource</organization>
+    </developer>
+  </developers>
 
   <modules>
-    <module>javascript-checks</module>
-    <module>sonar-javascript-plugin</module>
-    <module>eslint-bridge</module>
+    <module>sonar-plugin</module>
+    <module>tools</module>
+    <!--
+      its module is added via profile below
+    -->
   </modules>
 
   <scm>
@@ -46,36 +76,44 @@
 
   <properties>
     <!--  this is necessary because of drop of modules  -->
-    <sonar.testExecutionReportPaths>eslint-bridge/test-report.xml</sonar.testExecutionReportPaths>
+    <sonar.testExecutionReportPaths>test-report.xml</sonar.testExecutionReportPaths>
 
     <gitRepositoryName>SonarJS</gitRepositoryName>
     <license.title>SonarQube JavaScript Plugin</license.title>
-    <sonarQubeMinVersion>8.9</sonarQubeMinVersion>
+    <!-- Version corresponds to SQ 9.9 LTS -->
+    <pluginApiMinVersion>9.14.0.375</pluginApiMinVersion>
 
-    <!-- override sonar-packaging plugin version from parent -->
-    <version.sonar-packaging.plugin>1.20.0.405</version.sonar-packaging.plugin>
     <assertj.version>3.16.1</assertj.version>
     <jgit.version>6.2.0.202206071550-r</jgit.version>
-    <junit.version>5.8.1</junit.version>
+    <junit.version>5.9.3</junit.version>
     <mockito.version>3.5.0</mockito.version>
     <slf4j.version>1.7.21</slf4j.version>
-    <sonar.version>9.6.1.59531</sonar.version>
-    <sonar.api.version>9.10.0.269</sonar.api.version>
-    <sonar-orchestrator.version>3.40.0.183</sonar-orchestrator.version>
-    <sonarlint.version>8.10.0.56343</sonarlint.version>
+    <sonar.version>10.1.0.73491</sonar.version>
+    <sonar.api.version>10.1.0.809</sonar.api.version>
+    <sonar-orchestrator.version>4.1.0.495</sonar-orchestrator.version>
     <gson.version>2.8.9</gson.version>
-    <analyzer-commons.version>2.0.0.1075</analyzer-commons.version>
+    <analyzer-commons.version>2.7.0.1482</analyzer-commons.version>
     <sslr.version>1.22</sslr.version>
-    <sonarlint.plugin.api.version>8.9.0.54830</sonarlint.plugin.api.version>
+    <sonarlint.plugin.api.version>9.1.1.74346</sonarlint.plugin.api.version>
 
     <artifactsToPublish>${project.groupId}:sonar-javascript-plugin:jar</artifactsToPublish>
     <maven.test.redirectTestOutputToFile>true</maven.test.redirectTestOutputToFile>
-    <maven.compiler.release>11</maven.compiler.release>
-    <jdk.min.version>11</jdk.min.version>
-    <version.surefire.plugin>3.0.0-M7</version.surefire.plugin>
+    <maven.compiler.release>17</maven.compiler.release>
+    <jdk.min.version>17</jdk.min.version>
+    <version.surefire.plugin>3.1.2</version.surefire.plugin>
 
     <!-- FIXME fix javadoc errors -->
     <doclint>none</doclint>
+
+    <!-- sonar analysis -->
+    <sonar.sources>packages/</sonar.sources>
+    <sonar.exclusions>packages/**/*.test.ts,packages/**/*.fixture.*,packages/**/fixtures/**/*</sonar.exclusions>
+    <sonar.tests>packages/</sonar.tests>
+    <sonar.test.inclusions>packages/**/*.test.ts</sonar.test.inclusions>
+    <sonar.javascript.lcov.reportPaths>coverage/lcov.info</sonar.javascript.lcov.reportPaths>
+    <sonar.typescript.tsconfigPath>${project.basedir}/packages/tsconfig.app.json,${project.basedir}/packages/tsconfig.test.json</sonar.typescript.tsconfigPath>
+    <sonar.cpd.exclusions>sonar-plugin/javascript-checks/src/main/resources/**/*.html</sonar.cpd.exclusions>
+    <sonar.coverage.exclusions>packages/bridge/src/worker.js,packages/ruling/**</sonar.coverage.exclusions>
   </properties>
 
   <dependencyManagement>
@@ -85,6 +123,11 @@
       <dependency>
         <groupId>${project.groupId}</groupId>
         <artifactId>javascript-checks</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>css</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
@@ -113,6 +156,11 @@
         <version>2.11.0</version>
       </dependency>
       <dependency>
+        <groupId>commons-lang</groupId>
+        <artifactId>commons-lang</artifactId>
+        <version>2.6</version>
+      </dependency>
+      <dependency>
           <groupId>org.sonarsource.sslr</groupId>
           <artifactId>sslr-core</artifactId>
           <version>${sslr.version}</version>
@@ -123,7 +171,11 @@
         <version>${sonarlint.plugin.api.version}</version>
         <scope>provided</scope>
       </dependency>
-
+      <dependency>
+        <groupId>org.tukaani</groupId>
+        <artifactId>xz</artifactId>
+        <version>1.9</version>
+      </dependency>
 
       <!-- Test dependencies -->
       <dependency>
@@ -154,12 +206,12 @@
       <dependency>
         <groupId>org.sonarsource.sonarlint.core</groupId>
         <artifactId>sonarlint-core</artifactId>
-        <version>${sonarlint.version}</version>
+        <version>${sonarlint.plugin.api.version}</version>
         <scope>test</scope>
       </dependency>
       <dependency>
         <groupId>org.sonarsource.orchestrator</groupId>
-        <artifactId>sonar-orchestrator</artifactId>
+        <artifactId>sonar-orchestrator-junit5</artifactId>
         <version>${sonar-orchestrator.version}</version>
         <scope>test</scope>
       </dependency>
@@ -203,17 +255,51 @@
         <scope>provided</scope>
       </dependency>
 
+      <dependency>
+        <groupId>org.sonarsource.api.plugin</groupId>
+        <artifactId>sonar-plugin-api-test-fixtures</artifactId>
+        <version>${sonar.api.version}</version>
+        <scope>test</scope>
+      </dependency>
+
     </dependencies>
   </dependencyManagement>
 
   <build>
-
+    <plugins>
+      <plugin>
+        <groupId>com.mycila</groupId>
+        <artifactId>license-maven-plugin</artifactId>
+        <!-- This plugin is already configured in parent pom, however we want a configuration specific to this project -->
+        <configuration>
+          <includes>
+            <include>packages/**/*.ts</include>
+            <include>packages/**/*.tsx</include>
+            <include>profiling/**/*.ts</include>
+            <include>profiling/**/*.js</include>
+            <include>tools/resources/rule.*</include>
+            <include>tools/**/*.mjs</include>
+            <include>tools/**/*.ts</include>
+            <include>tools/**/*.java</include>
+          </includes>
+          <mapping>
+            <template_java>JAVADOC_STYLE</template_java>
+            <template_ts>JAVADOC_STYLE</template_ts>
+          </mapping>
+          <excludes>
+            <exclude>packages/**/fixtures/**/*</exclude>
+            <exclude>packages/**/*.fixture.*</exclude>
+            <exclude>**/src/test/resources/**/*</exclude>
+          </excludes>
+        </configuration>
+      </plugin>
+    </plugins>
     <pluginManagement>
       <plugins>
         <plugin>
           <groupId>org.codehaus.mojo</groupId>
           <artifactId>exec-maven-plugin</artifactId>
-          <version>1.6.0</version>
+          <version>3.0.0</version>
         </plugin>
       </plugins>
     </pluginManagement>

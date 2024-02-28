@@ -1,6 +1,6 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2012-2023 SonarSource SA
+ * Copyright (C) 2012-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,17 +19,20 @@
  */
 package com.sonar.javascript.it.plugin;
 
+import static com.sonar.javascript.it.plugin.OrchestratorStarter.getIssues;
+import static com.sonar.javascript.it.plugin.OrchestratorStarter.getSonarScanner;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
+
 import com.sonar.orchestrator.Orchestrator;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.sonarqube.ws.Common;
 import org.sonarqube.ws.Issues.Issue;
-
-import static com.sonar.javascript.it.plugin.OrchestratorStarter.getIssues;
-import static com.sonar.javascript.it.plugin.OrchestratorStarter.getSonarScanner;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.tuple;
 
 @ExtendWith(OrchestratorStarter.class)
 public class HtmlAnalysisTest {
@@ -37,35 +40,52 @@ public class HtmlAnalysisTest {
   private static final Orchestrator orchestrator = OrchestratorStarter.ORCHESTRATOR;
 
   @Test
-  void should_raise_issues_in_html_files() {
+  void should_raise_issues_in_html_files() throws IOException {
     var projectKey = "html-project";
+    var perfMonitoringDir = Path.of("target/monitoring/", projectKey);
     var build = getSonarScanner()
       .setProjectKey(projectKey)
       .setSourceEncoding("UTF-8")
       .setSourceDirs(".")
       .setDebugLogs(true)
-      .setProjectDir(TestUtils.projectDir(projectKey));
+      .setProjectDir(TestUtils.projectDir(projectKey))
+      .setProperty("sonar.javascript.monitoring", "true")
+      .setProperty(
+        "sonar.javascript.monitoring.path",
+        perfMonitoringDir.toAbsolutePath().toString()
+      );
 
-    OrchestratorStarter.setProfiles(projectKey, Map.of(
-      "html-profile", "web",
-      "eslint-based-rules-profile", "js"));
+    OrchestratorStarter.setProfiles(
+      projectKey,
+      Map.of("html-profile", "web", "eslint-based-rules-profile", "js")
+    );
     orchestrator.executeBuild(build);
 
     var issuesList = getIssues(projectKey);
 
     Common.TextRange primaryLocation = issuesList.get(2).getTextRange();
-    Common.TextRange secondaryLocation = issuesList.get(2).getFlows(0).getLocations(0).getTextRange();
+    // S3834 no longer reports secondaryLocation
 
-    assertThat(primaryLocation.getStartOffset()).isEqualTo(15);
-    assertThat(primaryLocation.getEndOffset()).isEqualTo(18);
-    assertThat(secondaryLocation.getStartOffset()).isEqualTo(19);
-    assertThat(secondaryLocation.getEndOffset()).isEqualTo(25);
+    assertThat(primaryLocation.getStartOffset()).isEqualTo(19);
+    assertThat(primaryLocation.getEndOffset()).isEqualTo(25);
 
-    assertThat(issuesList).extracting(Issue::getLine, Issue::getRule).containsExactlyInAnyOrder(
-      tuple(1, "Web:DoctypePresenceCheck"),
-      tuple(4, "javascript:S3923"),
-      tuple(7, "javascript:S3834")
-    );
+    assertThat(issuesList)
+      .extracting(Issue::getLine, Issue::getRule)
+      .containsExactlyInAnyOrder(
+        tuple(1, "Web:DoctypePresenceCheck"),
+        tuple(4, "javascript:S3923"),
+        tuple(7, "javascript:S3834")
+      );
+    // assertPerfMonitoringAvailable(perfMonitoringDir);
+  }
+
+  private void assertPerfMonitoringAvailable(Path perfMonitoringDir) throws IOException {
+    String content = Files.readString(perfMonitoringDir.resolve("metrics.json"));
+    assertThat(content)
+      .contains("\"ncloc\":4")
+      .containsPattern("\"parseTime\":\\d+")
+      .containsPattern("\"analysisTime\":\\d+")
+      .contains("\"component\":\"index.html\"");
   }
 
   @Test
@@ -78,17 +98,19 @@ public class HtmlAnalysisTest {
       .setDebugLogs(true)
       .setProjectDir(TestUtils.projectDir(projectKey));
 
-    OrchestratorStarter.setProfiles(projectKey, Map.of(
-      "html-profile", "web",
-      "html-blacklist-profile", "js"));
+    OrchestratorStarter.setProfiles(
+      projectKey,
+      Map.of("html-profile", "web", "html-blacklist-profile", "js")
+    );
     orchestrator.executeBuild(build);
 
     var issuesList = getIssues(projectKey);
 
-    assertThat(issuesList).extracting(Issue::getLine, Issue::getRule).containsExactlyInAnyOrder(
-      tuple(1, "Web:DoctypePresenceCheck"),
-      tuple(4, "javascript:S3923")
-    );
+    assertThat(issuesList)
+      .extracting(Issue::getLine, Issue::getRule)
+      .containsExactlyInAnyOrder(
+        tuple(1, "Web:DoctypePresenceCheck"),
+        tuple(4, "javascript:S3923")
+      );
   }
 }
-

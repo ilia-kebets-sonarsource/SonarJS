@@ -1,0 +1,29 @@
+{
+  "title": "Tests should not execute any code after \"done()\" is called",
+  "type": "CODE_SMELL",
+  "code": {
+    "impacts": {
+      "MAINTAINABILITY": "HIGH"
+    },
+    "attribute": "CONVENTIONAL"
+  },
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "tests",
+    "unpredictable",
+    "mocha"
+  ],
+  "defaultSeverity": "Critical",
+  "ruleSpecification": "RSPEC-6079",
+  "sqKey": "S6079",
+  "scope": "Tests",
+  "quickfix": "unknown",
+  "compatibleLanguages": [
+    "JAVASCRIPT",
+    "TYPESCRIPT"
+  ]
+}
